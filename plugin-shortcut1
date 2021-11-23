@@ -1,0 +1,75 @@
+<?php
+/*
+Plugin Name: thinhtv
+Plugin URI: https://vinatexdn.com.vn
+Description: Plugin 
+Version: 1.0
+Author: Trần Văn Thịnh
+Author URI: https://vinatexdn.com.vn
+License: GPL
+*/
+
+/* ref 
+https://developer.wordpress.org/reference/functions/get_the_date/
+https://toidicode.com/xu-ly-ngay-thang-trong-php-73.html
+
+https://developer.wordpress.org/reference/classes/wp_user_query/
+https://developer.wordpress.org/reference/functions/get_users/
+https://developer.wordpress.org/reference/classes/wp_user_query/prepare_query/
+Thành viên đăng ký (Subscriber)
+Cộng tác viên (Contributor)
+Tác giả (Author)
+Biên tập (Editor)
+Quản lý (Admin)
+https://themevi.com/quan-ly-thanh-vien-trong-wordpress/#gsc.tab=0
+
+user_lastname
+user_firstname  firstname
+display_name Tên hiển thị
+https://wordpress.stackexchange.com/questions/196453/displaying-logged-in-user-name-in-wordpress-menu
+https://rudrastyh.com/wordpress/get-user-id.html
+
+https://www.hoangweb.com/wordpress/huong-dan-tao-va-su-dung-shortcode-trong-wordpress
+https://thachpham.com/wordpress/wordpress-tutorials/toan-tap-ve-shortcode-trong-wordpress.html
+https://www.vietrick.com/huong-dan-viet-va-su-dung-shortcode-wordpress-co-ban/
+https://vietnamdragon.wordpress.com/2013/11/04/toan-tap-ve-shortcode-trong-wordpress/
+https://wordpress.stackexchange.com/questions/99603/what-does-extract-shortcode-atts-array-do#:~:text=What%20does%20extract%20%28%20shortcode_atts%20%28%20array%20%28,known%20attributes%2C%20merged%20with%20values%20from%20shortcode%20attributes.
+
+usage: [tvtGetListPostsBBpress]
+
+*/
+
+function randposts($atts = []) {
+extract( shortcode_atts( array (	'tendangnhap' => '',), $atts ) );  
+$options = array(  'post_type' => 'topic', 'author_name' =>$tendangnhap, );
+$the_query = new WP_Query( $options ); 
+if ( $the_query->have_posts() ) {
+  $string .= '<ul>';
+   while ( $the_query->have_posts() ) {
+          $the_query->the_post();
+          $string .= '<li><a href="'. get_permalink() .'">'. get_the_title() .'</a>'. ' Ngày đăng '.get_the_date('d-m-Y H:i:s') .'</li>';
+   }
+   $string .= '</ul>';
+   wp_reset_postdata();
+} else {
+   $string .= 'Chưa có bài viết';
+}
+   return $string;
+}
+add_shortcode('tvtGetListPostsBBpress','randposts');
+
+function getListUser() {
+	$args = array(
+	'role'   => 'Subscriber'
+);
+$user_query = new WP_User_Query( $args );
+if ( ! empty( $user_query->get_results() ) ) { // User Loop
+	foreach ( $user_query->get_results() as $user ) {
+		echo '<p>' . $user->user_login  . '</p>';
+	}
+} else {
+	echo 'Không có người dùng.';
+}
+}
+add_shortcode('tvtgetListUser','getListUser');
+?>
