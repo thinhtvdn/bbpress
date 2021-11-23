@@ -7,7 +7,45 @@ Version: 1.0
 Author: Trần Văn Thịnh
 Author URI: https://vinatexdn.com.vn
 License: GPL
+
+usage: [tvtGetListPostsBBpress]
 */
+
+function randposts($atts) {  // get posts in bbpress forum of the user
+$args=shortcode_atts( array ( 'tendangnhap' => 'default', ), $atts ) ;
+extract($args);
+//$q = $args['tendangnhap']; echo $q;
+$options = array( 'post_type' => 'topic',  'author_name' =>$tendangnhap,);
+$string = '';
+$the_query = new WP_Query( $options ); 
+if ( $the_query->have_posts() ) { 
+  $string .= '<ul>';
+   while ( $the_query->have_posts() ) {
+          $the_query->the_post();
+          $string .= '<li><a href="'. get_permalink() .'">'. get_the_title() .'</a>'. ' Ngày đăng '.get_the_date('d-m-Y H:i:s') .'</li>'; 
+   }
+   $string .= '</ul>';
+   wp_reset_postdata();
+} 
+  echo $string; 
+}
+add_shortcode('tvtGetListPostsBBpress','randposts');
+
+function getListUser() {
+	$args = array(
+	'role'   => 'Subscriber'
+);
+$user_query = new WP_User_Query( $args );
+if ( ! empty( $user_query->get_results() ) ) { // User Loop
+	foreach ( $user_query->get_results() as $user ) {
+		echo '<p>' . $user->user_login  . '</p>';
+	}
+} else {
+	echo 'Không có người dùng.';
+}
+}
+add_shortcode('tvtgetListUser','getListUser');
+?>
 
 /* ref 
 https://developer.wordpress.org/reference/functions/get_the_date/
@@ -35,41 +73,4 @@ https://www.vietrick.com/huong-dan-viet-va-su-dung-shortcode-wordpress-co-ban/
 https://vietnamdragon.wordpress.com/2013/11/04/toan-tap-ve-shortcode-trong-wordpress/
 https://wordpress.stackexchange.com/questions/99603/what-does-extract-shortcode-atts-array-do#:~:text=What%20does%20extract%20%28%20shortcode_atts%20%28%20array%20%28,known%20attributes%2C%20merged%20with%20values%20from%20shortcode%20attributes.
 
-usage: [tvtGetListPostsBBpress]
-
 */
-
-function randposts($atts = []) {
-extract( shortcode_atts( array (	'tendangnhap' => '',), $atts ) );  
-$options = array(  'post_type' => 'topic', 'author_name' =>$tendangnhap, );
-$the_query = new WP_Query( $options ); 
-if ( $the_query->have_posts() ) {
-  $string .= '<ul>';
-   while ( $the_query->have_posts() ) {
-          $the_query->the_post();
-          $string .= '<li><a href="'. get_permalink() .'">'. get_the_title() .'</a>'. ' Ngày đăng '.get_the_date('d-m-Y H:i:s') .'</li>';
-   }
-   $string .= '</ul>';
-   wp_reset_postdata();
-} else {
-   $string .= 'Chưa có bài viết';
-}
-   return $string;
-}
-add_shortcode('tvtGetListPostsBBpress','randposts');
-
-function getListUser() {
-	$args = array(
-	'role'   => 'Subscriber'
-);
-$user_query = new WP_User_Query( $args );
-if ( ! empty( $user_query->get_results() ) ) { // User Loop
-	foreach ( $user_query->get_results() as $user ) {
-		echo '<p>' . $user->user_login  . '</p>';
-	}
-} else {
-	echo 'Không có người dùng.';
-}
-}
-add_shortcode('tvtgetListUser','getListUser');
-?>
